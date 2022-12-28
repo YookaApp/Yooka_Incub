@@ -1,5 +1,5 @@
 #include <LiquidCrystal_I2C.h>
-//#include <avr/wdt.h> //include a watchdog Librairie
+#include <avr/wdt.h> //include a watchdog Librairie
 #include <Wire.h>
 #include "dht.h"
 #include "rtc.h"
@@ -49,7 +49,7 @@ void beginer(){
 }
 
 void setup() {
-    //wdt_enable(WDTO_4S); //config a WTD 
+    wdt_enable(WDTO_4S); //config a WTD 
     beginer();
     temp_lcd = millis();
     temp_buzzer=millis();
@@ -67,7 +67,7 @@ void setup() {
 
   initial_retournement();
   initialisation();
-  //wdt_reset();
+  wdt_reset();
  }
 
 void loop() {
@@ -80,6 +80,7 @@ void loop() {
     temp_lcd = millis();
    }
   retournement();
+  wdt_reset();
 }
 
 void appel_fonction(){
