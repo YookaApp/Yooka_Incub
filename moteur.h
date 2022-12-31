@@ -12,43 +12,55 @@
 
 #define PIN_RETOURNEMENT_RECUL 2
 #define PIN_RETOURNEMENT_AVANC 18
+#define DEADLINE 4
 
 //ce fichier contient les fonction permettant le retournement des oeufs grace au moteur
-boolean valider = false, etat_bts = true;
-bool memorie_btG = false, memorie_btD = false;
-char heure_actuelle;
-
+boolean valider = false, etat_bts = true, flag_manuelRetour = false;
+int HourNow = 0; // variable content a Hour now
+bool memorie_btG = true, memorie_btD = true; // booleans content a state of course-ends buttons
+                                                // setup to true value
 void initial_retournement(){
 
   if (digitalRead(PIN_FIN_de_COURSE_G)){
-    etat_bts = 1; //dans l'autre cas on change de sens
+    etat_bts = 0; //dans l'autre cas on change de sens
   }
 
   if (digitalRead(PIN_FIN_de_COURSE_D)) {
-    etat_bts = 0; //dans l'autre cas on change de sens
+    etat_bts = 1; //dans l'autre cas on change de sens
   }
 }
 
 
 void control_hour() {
-    if(dateTime.hours != heure_actuelle){
+  int deadlineNow = dateTime.incremente_hours;
+   
+   if(HourNow != dateTime.hours){
+      HourNow = dateTime.hours;
+      deadlineNow = deadlineNow + 1;
 
-    }
+        if(deadlineNow >= DEADLINE){
+                 deadlineNow = 0;
+                 valider = true;
+                 
+                 }    
+      update_deadline_Hours(deadlineNow); // save incremente hour
+    Serial.print("Incremente OK ");
+   }
 }
 
 void control_Fin_de_course() {
-  bool data1 = digitalRead(PIN_FIN_de_COURSE_G);
-  bool data2 = digitalRead(PIN_FIN_de_COURSE_D);
+  bool data1 = digitalRead(PIN_FIN_de_COURSE_D);
+  bool data2 = digitalRead(PIN_FIN_de_COURSE_G);
 
-  if ( (data1 != memorie_btG) && (data1 == true) ) {
+  if((data1 != memorie_btG) && (data1 == true) && !data2) {
     valider = false ;  //arret moteurs
     etat_bts = 1; //dans l'autre cas on change de sens
   }
 
-  if ((data2 != memorie_btD) && (data2 == true)) {
+  else if((data2 != memorie_btD) && (data2 == true) && !data1) {
     valider = false ;  //arret moteurs
     etat_bts = 0; //dans l'autre cas on change de sens
-  }
+      }
   
   memorie_btG = data1;
   memorie_btD = data2; // Enregistrement d'etats
@@ -60,27 +72,27 @@ void lecture_buttons(){
   if(digitalRead(PIN_RETOURNEMENT_RECUL) && !digitalRead(PIN_FIN_de_COURSE_G)){
     etat_bts = 1; 
     valider = true;
+    flag_manuelRetour = true;
   }
   
   else if(digitalRead(PIN_RETOURNEMENT_AVANC) && !digitalRead(PIN_FIN_de_COURSE_D)){
     etat_bts = 0;
     valider = true;
+    flag_manuelRetour = true;
   }
 
   else {
-    valider = false; //on stop le moteur
+    //on stop le moteur
+    if(flag_manuelRetour){
+          valider = false; 
+          flag_manuelRetour = false;
+    }
   }
-
-// initialisation du sens des boutons si on a atteint les contacts de fin de course
-
-  initial_retournement();
-
 }
 
 void retournement() {
-  
-  lecture_buttons(); // action des boutons 
-  control_hour(); //check time, if deadline 's reach we action the motor
+  control_hour();
+  lecture_buttons();
   
   if(valider) {
     control_Fin_de_course(); // on verifie nos boutons de fin de course

@@ -11,7 +11,6 @@ struct dateTime_t{
    byte dom;  //dayOfMonth(1-30/31)
    byte month;
    byte year;
-
    byte incremente_hours; //deadline hour
    
 }dateTime;
@@ -49,6 +48,7 @@ bool Clock(int);//controle de l'horloge du module
 void update_time(byte, byte, byte, byte, byte, byte, byte);
 void update_time_reglage(byte, byte); 
 void download_time(dateTime_t *); 
+void update_deadline_Hours(int);
 
 //convertisseur des donnees
 byte decimal_hexa(byte);
