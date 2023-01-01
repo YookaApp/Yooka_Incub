@@ -4,14 +4,14 @@
 
    //Constantes pour le module RTC 
 #define ADRESS_RTC 0x68 // qui vaut 104 en decimal
-#define ADRESS_EEPROM 2
+#define ADRESS_EEPROM 8
 
 void download_time(dateTime_t *now){  //now est une variable de type structure qui stoquerant l'heure et la date actuel
   Wire.beginTransmission(ADRESS_RTC);
   Wire.write(0);         //on remet a zero le curseur
   Wire.endTransmission();
 
-  Wire.requestFrom(ADRESS_RTC, 7);
+  Wire.requestFrom(ADRESS_RTC, 9);
   now->sec   = decimal_hexa(Wire.read());
   now->mins  = decimal_hexa(Wire.read());
   now->hours = decimal_hexa(Wire.read() & 63);
@@ -19,6 +19,8 @@ void download_time(dateTime_t *now){  //now est une variable de type structure q
   now->dom   = decimal_hexa(Wire.read());
   now->month = decimal_hexa(Wire.read());
   now->year  = decimal_hexa(Wire.read());
+  Wire.read(); //lecture du  8ieme octet
+  now->incremente_hours = decimal_hexa(Wire.read());
 
   Clock( now->sec & 128); //verification de l'horloge
 }
@@ -44,6 +46,15 @@ void update_time_reglage(byte sec_R, byte min_R){
   Wire.write( hexa_decimal(sec_R) & 127); // CH=0
   Wire.write( hexa_decimal(min_R));
   Wire.endTransmission();
+}
+
+
+void update_deadline_Hours(int data){
+  
+  Wire.beginTransmission(ADRESS_RTC);
+  Wire.write(ADRESS_EEPROM);                      // pointage vers l'octet
+  Wire.write(hexa_decimal(data));
+  Wire.endTransmission();  
 }
 
 

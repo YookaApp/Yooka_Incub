@@ -61,8 +61,7 @@ void setup() {
   //update_time(0, 32, 3, 3, 28, 12, 22);
 
   download_time( &dateTime ); // telecharge l'heure et la date
-  heure_actuelle = dateTime.hours;  //on sauvegarde l'heure aussi
-
+  HourNow= dateTime.hours;
 // setup incubator
 
   initial_retournement();
@@ -74,17 +73,21 @@ void loop() {
   
   appel_fonction();                   //and that call a functions (download a times and temperature, Humidity)
   if(( millis() - temp_lcd) >= 1000){
-    affichage();                        // after one seconde , this function update a datas to screen
+    temp_lcd = millis();
+    
     readDHT( DHT_PIN, &tempe, &humidy );
     download_time( &dateTime );
-    temp_lcd = millis();
+    
+    affichage();                        // after one seconde , this function update a datas to screen
+    Serial.println(dateTime.incremente_hours);
+
    }
-  retournement();
+   
   wdt_reset();
 }
 
-void appel_fonction(){
-  
+void appel_fonction(){  
+  retournement(); 
   control_temperature();
   control_humidity();
   control_buzzer(); 
@@ -95,12 +98,12 @@ void appel_fonction(){
 
 void control_temperature(){
   
-  if(tempe < 37.5){
-   digitalWrite(RELAIS_RES, HIGH);
+  if(tempe < 37.45){
+   digitalWrite(RELAIS_RES, LOW);
   }
 
-  else if(tempe > 37.65){
-   digitalWrite(RELAIS_RES, LOW);
+  else if(tempe > 37.55){
+   digitalWrite(RELAIS_RES, HIGH);
   }
   
   control_leds_T();
@@ -110,7 +113,7 @@ void control_temperature(){
 void control_humidity(){
   
   if(humidy < 45){
-    digitalWrite(RELAIS_BRIS, HIGH);
+    //digitalWrite(RELAIS_BRIS, HIGH);
   }
 
   else if(humidy > 55){
