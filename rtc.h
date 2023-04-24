@@ -175,7 +175,7 @@ bool Clock(int data){
     }
 
   else{
-    //Serial.println("ok_");
+    Serial.println("ok_");
   }
 }
 #endif //rtc

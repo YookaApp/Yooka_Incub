@@ -17,7 +17,7 @@
 //ce fichier contient les fonction permettant le retournement des oeufs grace au moteur
 boolean valider = false, etat_bts = true, flag_manuelRetour = false;
 int HourNow = 0; // variable content a Hour now
-bool memorie_btG = true, memorie_btD = true; // booleans content a state of course-ends buttons
+bool memorie_btG = false, memorie_btD = false; // booleans content a state of course-ends buttons
                                                 // setup to true value
 void initial_retournement(){
 
